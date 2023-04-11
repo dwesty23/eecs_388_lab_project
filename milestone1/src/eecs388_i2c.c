@@ -75,10 +75,22 @@ void steering(int angle){
     /*
         Write Task 2 code here
     */
-   int valToBreak = getServoCycle(angle); // passes in the angle to getServoCycle and stores the value in valToBreak
-   uint8_t low, high; // creates two 8 bit numbers to pass into breakup
-   breakup(valToBreak, &low, &high); // passes in the 12 bit valToBreak and the low and high 8 bit numbers that the broken up number will store into
-   metal_i2c_transfer(i2c,PCA9685_I2C_ADDRESS,bufWrite,1,bufRead,1); // work in progress
+    int valToBreak = getServoCycle(angle); // passes in the angle to getServoCycle and stores the value in valToBreak
+    uint8_t low, high; // creates two 8 bit numbers to pass into breakup
+    breakup(valToBreak, &low, &high); // passes in the 12 bit valToBreak and the low and high 8 bit numbers that the broken up number will store into
+
+    //print the steering values (cycle, low and high)
+    printf("Steering values: %d %d %d\n", valToBreak, low, high); //
+
+    //my friend's TA fed them this...
+    bufWrite[0] = PCA9685_LED0_ON_L;
+    bufWrite[1] = 0;
+    bufWrite[2] = 0;
+    bufWrite[3] = low;
+    bufWrite[4] = high;
+    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+    // this block is pretty much how you do everything as far as communicating with motors -> I HAVE NO IDEA WHY...
+    // -david
 }
 
 void stopMotor(){
