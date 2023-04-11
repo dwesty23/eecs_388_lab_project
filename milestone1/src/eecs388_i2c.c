@@ -83,10 +83,12 @@ void steering(int angle){
     printf("Steering values: %d %d %d\n", valToBreak, low, high); //
 
     //my friend's TA fed them this...
-    bufWrite[0] = PCA9685_LED0_ON_L;
-    bufWrite[1] = 0;
-    bufWrite[2] = 0;
-    bufWrite[3] = low;
+    bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory addy for something :/
+    bufWrite[1] = 0; // no idea
+    bufWrite[2] = 0; // no idea
+    bufWrite[3] = low; // i think bufWrite is just an array of values that gets fed 
+                        //into the metal_i2c_transfer function along with a bunch of other stuff
+                        // to communicate with motors
     bufWrite[4] = high;
     metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
     // this block is pretty much how you do everything as far as communicating with motors -> I HAVE NO IDEA WHY...
