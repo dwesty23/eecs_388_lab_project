@@ -77,20 +77,22 @@ void steering(int angle){
         Write Task 2 code here
     */
     int valToBreak = getServoCycle(angle); // passes in the angle to getServoCycle and stores the value in valToBreak
-    uint8_t low, high; // creates two 8 bit numbers to pass into breakup
-    breakup(valToBreak, &low, &high); // passes in the 12 bit valToBreak and the low and high 8 bit numbers that the broken up number will store into
+    //uint8_t low, high; // creates two 8 bit numbers to pass into breakup
 
     //print the steering values (cycle, low and high)
-    printf("Steering values: %d %d %d\n", valToBreak, low, high); //
 
     //my friend's TA fed them this...
-    bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory addy for something :/
+    bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory addy for steering
     bufWrite[1] = 0; // no idea
     bufWrite[2] = 0; // no idea
-    bufWrite[3] = low; // i think bufWrite is just an array of values that gets fed 
+    //bufWrite[3] = low; // i think bufWrite is just an array of values that gets fed 
                         //into the metal_i2c_transfer function along with a bunch of other stuff
                         // to communicate with motors
-    bufWrite[4] = high;
+    //bufWrite[4] = high;
+
+    breakup(valToBreak, &bufWrite[3], &bufWrite[4]); // passes in the 12 bit valToBreak and the low and high 8 bit numbers that the broken up number will store into
+    printf("Steering values: %d %d %d\n", valToBreak, bufWrite[3], bufWrite[4]); 
+
     metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
     // this block is pretty much how you do everything as far as communicating with motors -> I HAVE NO IDEA WHY...
     // -david
@@ -100,23 +102,111 @@ void stopMotor(){
     /*
         Write Task 3 code here
     */
+   int valToBreak = getServoCycle(280); // NOT SUPPOSED TO BE 'ANGLE' we need to find the random number here that gets passed iN that means stop
+    //my friend's TA fed them this...
+    bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory addy for motor direction control
+    bufWrite[1] = 0; // no idea
+    bufWrite[2] = 0; // no idea
+
+    breakup(valToBreak, &bufWrite[3], &bufWrite[4]); // passes in the 12 bit valToBreak and the low and high 8 bit numbers that the broken up number will store into
+
+    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
 }
 
 void driveForward(uint8_t speedFlag){
     /*
         Write Task 4 code here
     */
+   if (speedFlag == 1) {
+        int valToBreak = getServoCycle(313); // NOT SUPPOSED TO BE 'ANGLE' we need to find the random number here that gets passed iN that means stop
+        //my friend's TA fed them this...
+        bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory addy for motor direction control
+        bufWrite[1] = 0; // no idea
+        bufWrite[2] = 0; // no idea
+
+        breakup(valToBreak, &bufWrite[3], &bufWrite[4]); // passes in the 12 bit valToBreak and the low and high 8 bit numbers that the broken up number will store into
+
+        metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+
+   } else if (speedFlag == 2) {
+        int valToBreak = getServoCycle(315); // NOT SUPPOSED TO BE 'ANGLE' we need to find the random number here that gets passed iN that means stop
+        //my friend's TA fed them this...
+        bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory addy for motor direction control
+        bufWrite[1] = 0; // no idea
+        bufWrite[2] = 0; // no idea
+
+        breakup(valToBreak, &bufWrite[3], &bufWrite[4]); // passes in the 12 bit valToBreak and the low and high 8 bit numbers that the broken up number will store into
+
+        metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+   } else if (speedFlag == 3) {
+        int valToBreak = getServoCycle(317); // NOT SUPPOSED TO BE 'ANGLE' we need to find the random number here that gets passed iN that means stop
+        //my friend's TA fed them this...
+        bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory addy for motor direction control
+        bufWrite[1] = 0; // no idea
+        bufWrite[2] = 0; // no idea
+
+        breakup(valToBreak, &bufWrite[3], &bufWrite[4]); // passes in the 12 bit valToBreak and the low and high 8 bit numbers that the broken up number will store into
+
+        metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+   }
+
 }
 
 void driveReverse(uint8_t speedFlag){
     /*
         Write task 5 code here
     */
+   if (speedFlag == 1) {
+        int valToBreak = getServoCycle(267); // NOT SUPPOSED TO BE 'ANGLE' we need to find the random number here that gets passed iN that means stop
+        //my friend's TA fed them this...
+        bufWrite[0] = PCA9685_LED0_Off_L; //this is a memory addy for something :/
+        bufWrite[1] = 0; // no idea
+        bufWrite[2] = 0; // no idea
+
+        breakup(valToBreak, &bufWrite[3], &bufWrite[4]); // passes in the 12 bit valToBreak and the low and high 8 bit numbers that the broken up number will store into
+
+        metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+
+   } else if (speedFlag == 2) {
+        int valToBreak = getServoCycle(265); // NOT SUPPOSED TO BE 'ANGLE' we need to find the random number here that gets passed iN that means stop
+        //my friend's TA fed them this...
+        bufWrite[0] = PCA9685_LED0_Off_L; //this is a memory addy for something :/
+        bufWrite[1] = 0; // no idea
+        bufWrite[2] = 0; // no idea
+
+        breakup(valToBreak, &bufWrite[3], &bufWrite[4]); // passes in the 12 bit valToBreak and the low and high 8 bit numbers that the broken up number will store into
+
+        metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+   } else if (speedFlag == 3) {
+        int valToBreak = getServoCycle(263); // NOT SUPPOSED TO BE 'ANGLE' we need to find the random number here that gets passed iN that means stop
+        //my friend's TA fed them this...
+        bufWrite[0] = PCA9685_LED0_Off_L; //this is a memory addy for something :/
+        bufWrite[1] = 0; // no idea
+        bufWrite[2] = 0; // no idea
+
+        breakup(valToBreak, &bufWrite[3], &bufWrite[4]); // passes in the 12 bit valToBreak and the low and high 8 bit numbers that the broken up number will store into
+
+        metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+   }
 }
 
 int main()
 {
     set_up_I2C();
+    steering(0);
+    delay(2000);
+    driveForward(1);
+    delay(2000);
+    steering(20);
+    delay(2000);
+    stopMotor();
+    delay(2000);
+    driveReverse(1);
+    delay(2000);
+    steering(0);
+    delay(2000);
+    stopMotor();
+
     
     //Defining the breakup function
     /*
