@@ -64,63 +64,55 @@ void set_up_I2C(){
 
 
 void breakup(int bigNum, uint8_t* low, uint8_t* high){
-    /*
-        Write Task 1 code here
-    */
     *low = (uint8_t)bigNum & 0xFF; // takes bigNum and ANDs it with 11111111 so that the low 8 bits are taken
-    *high = bigNum >> 8; // takes bigNum and shifts right by 4 bits so that the high 8 bits are taken
-    // the shift is 8 because no overlap, i figured out why!
+    *high = bigNum >> 8; // takes bigNum and shifts right by 8 bits so that the high 8 bits are taken
+    // the shift is 8 because no overlap
 }
 
 void steering(int angle){
-    /*
-        Write Task 2 code here
-    */
    printf("STEERING...%d\n", angle);
     uint16_t valToBreak = getServoCycle(angle); // passes in the angle to getServoCycle and stores the value in valToBreak
     uint8_t low, high; // creates two 8 bit numbers to pass into breakup
     breakup(valToBreak, &low, &high); // makes 2 8bit from 1 12bit number
-    //print the steering values (cycle, low and high)
 
     //talk to motor
     bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory addy for servo
     bufWrite[1] = 0x00; // no idea
     bufWrite[2] = 0x00; // no idea
-    bufWrite[3] = low; 
-    bufWrite[4] = high;
-
+    bufWrite[3] = low; // give low bits
+    bufWrite[4] = high; //give high bits
     
+    //print steering values
     printf("Steering values: %d %d %d\n", valToBreak, bufWrite[3], bufWrite[4]); 
 
+    // send info to the car
     metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
     
 }
 
 void stopMotor(){
-    /*
-        Write Task 3 code here
-    */
-   printf("STOPPING...\n");
+
+   printf("STOPPING...\n"); //print stopping message
    uint8_t low, high; // creates two 8 bit numbers to pass into breakup
-   uint16_t valToBreak = getServoCycle(280); // NOT SUPPOSED TO BE 'ANGLE' we need to find the random number here that gets passed iN that means stop
+  
+    breakup(280, &low, &high); // make low and high bit numbers for the stopping speed
     
     //talk to motors
     bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory addy for motor direction control
-    bufWrite[1] = 0; // no idea
-    bufWrite[2] = 0; // no idea
+    bufWrite[1] = 0x00; // no idea
+    bufWrite[2] = 0x00; // no idea
+    bufWrite[3] = low; // send low bits
+    bufWrite[4] = high; // send high bits
 
-    breakup(valToBreak, &bufWrite[3], &bufWrite[4]); // passes in the 12 bit valToBreak and the low and high 8 bit numbers that the broken up number will store into
-
+    // send all the info to car
     metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
 }
 
 void driveForward(uint8_t speedFlag){
-    /*
-        Write Task 4 code here
-    */
+    
    printf("DRIVING FORWARD...\n");
-   int speed = 0;
-   switch(speedFlag){
+   int speed = 0; // default speed
+   switch(speedFlag){ // switch case for different speeds
     case 1:
         speed = 313;
         break;
@@ -132,22 +124,22 @@ void driveForward(uint8_t speedFlag){
         break;
    }
    uint8_t low, high;
-   breakup(speed, &low, &high);
+   breakup(speed, &low, &high); // break into 2 8 bits
 
-   bufWrite[0] = PCA9685_LED1_ON_L;
-   bufWrite[1] = 0x00;
-   bufWrite[2] = 0x00;
-   bufWrite[3] = low;
-   bufWrite[4] = high;
+    // talk to board
+   bufWrite[0] = PCA9685_LED1_ON_L; //addy
+   bufWrite[1] = 0x00; //idk
+   bufWrite[2] = 0x00; //idk
+   bufWrite[3] = low; //send low bits
+   bufWrite[4] = high; //send high bits
 
+    // send to car
    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
 
 }
 
 void driveReverse(uint8_t speedFlag){
-    /*
-        Write task 5 code here
-    */
+
    printf("DRIVING BACKWARD...\n");
    int speed = 0;
    switch(speedFlag){
