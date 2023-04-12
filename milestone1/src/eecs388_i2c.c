@@ -68,7 +68,8 @@ void breakup(int bigNum, uint8_t* low, uint8_t* high){
         Write Task 1 code here
     */
     low = bigNum & 0xFF; // takes bigNum and ANDs it with 11111111 so that the low 8 bits are taken
-    high = bigNum >> 4; // takes bigNum and shifts right by 4 bits so that the high 8 bits are taken
+    high = bigNum >> 8; // takes bigNum and shifts right by 4 bits so that the high 8 bits are taken
+    // the shift is 8 because no overlap, i figured out why!
 }
 
 void steering(int angle){
