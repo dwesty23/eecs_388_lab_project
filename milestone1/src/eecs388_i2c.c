@@ -65,123 +65,128 @@ void set_up_I2C(){
 
 void breakup(int bigNum, uint8_t* low, uint8_t* high){
     *low = (uint8_t)bigNum & 0xFF; // takes bigNum and ANDs it with 11111111 so that the low 8 bits are taken
-    *high = bigNum >> 8; // takes bigNum and shifts right by 8 bits so that the high 8 bits are taken
-    // the shift is 8 because no overlap
+    *high = bigNum >> 8; // takes bigNum and shifts right by 8 bits so that the high 4 bits are taken with 0000 leading them
 }
 
 void steering(int angle){
-   printf("STEERING...%d\n", angle);
     uint16_t valToBreak = getServoCycle(angle); // passes in the angle to getServoCycle and stores the value in valToBreak
     uint8_t low, high; // creates two 8 bit numbers to pass into breakup
-    breakup(valToBreak, &low, &high); // makes 2 8bit from 1 12bit number
+    breakup(valToBreak, &low, &high); // makes 2 8 bit numbers from 1 12bit number
 
     //talk to motor
-    bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory addy for servo
-    bufWrite[1] = 0x00; // no idea
-    bufWrite[2] = 0x00; // no idea
-    bufWrite[3] = low; // give low bits
-    bufWrite[4] = high; //give high bits
-    
-    //print steering values
-    printf("Steering values: %d %d %d\n", valToBreak, bufWrite[3], bufWrite[4]); 
+    bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory address for servo
+    bufWrite[1] = 0x00;
+    bufWrite[2] = 0x00;
+    bufWrite[3] = low; // store low bits
+    bufWrite[4] = high; // store high bits
 
-    // send info to the car
-    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send info to the car
+    // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
     
 }
 
 void stopMotor(){
-
-   printf("STOPPING...\n"); //print stopping message
    uint8_t low, high; // creates two 8 bit numbers to pass into breakup
   
     breakup(280, &low, &high); // make low and high bit numbers for the stopping speed
     
     //talk to motors
-    bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory addy for motor direction control
-    bufWrite[1] = 0x00; // no idea
-    bufWrite[2] = 0x00; // no idea
-    bufWrite[3] = low; // send low bits
-    bufWrite[4] = high; // send high bits
+    bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
+    bufWrite[1] = 0x00;
+    bufWrite[2] = 0x00; 
+    bufWrite[3] = low; // store low bits
+    bufWrite[4] = high; // store high bits
 
-    // send all the info to car
-    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send all the info to car
+    // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
 }
 
 void driveForward(uint8_t speedFlag){
-    
-   printf("DRIVING FORWARD...\n");
    int speed = 0; // default speed
-   switch(speedFlag){ // switch case for different speeds
+
+   switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
     case 1:
-        speed = 313;
+        speed = 313; // low speed value in positive direction
         break;
     case 2:
-        speed = 315;
+        speed = 315; // medium speed value in positive direction
         break;
     case 3:
-        speed = 317;
+        speed = 317; // high speed value in positive direction
         break;
    }
+
    uint8_t low, high;
    breakup(speed, &low, &high); // break into 2 8 bits
-
-    // talk to board
-   bufWrite[0] = PCA9685_LED1_ON_L; //addy
-   bufWrite[1] = 0x00; //idk
-   bufWrite[2] = 0x00; //idk
-   bufWrite[3] = low; //send low bits
-   bufWrite[4] = high; //send high bits
-
-    // send to car
-   metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+   
+   //talk to motors
+   bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
+   bufWrite[1] = 0x00;
+   bufWrite[2] = 0x00; 
+   bufWrite[3] = low; // store low bits
+   bufWrite[4] = high; // store high bits
+   
+   metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send all the info to car
+   // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
 
 }
 
 void driveReverse(uint8_t speedFlag){
-
-   printf("DRIVING BACKWARD...\n");
-   int speed = 0;
-   switch(speedFlag){
+   int speed = 0; // default speed
+   switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
     case 1:
-        speed = 267;
+        speed = 267; // low speed value in negative direction
         break;
     case 2:
-        speed = 265;
+        speed = 265; // medium speed value in negative direction
         break;
     case 3:
-        speed = 263;
+        speed = 263; // high speed value in negative direction
         break;
    }
    uint8_t low, high;
    breakup(speed, &low, &high);
-
-   bufWrite[0] = PCA9685_LED1_ON_L;
+   
+   //talk to motors
+   bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
    bufWrite[1] = 0x00;
    bufWrite[2] = 0x00;
-   bufWrite[3] = low;
-   bufWrite[4] = high;
-
-   metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+   bufWrite[3] = low; // store low bits
+   bufWrite[4] = high; // store high bits
+   
+   metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send all the info to car
+   // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
 }
 
 int main()
 {
-    set_up_I2C();
-    steering(0);
-    delay(2000);
-    driveForward(1);
-    delay(2000);
-    steering(20);
-    delay(2000);
-    stopMotor();
-    delay(2000);
-    driveReverse(1);
-    delay(2000);
-    steering(0);
-    delay(2000);
-    stopMotor();
+    set_up_I2C(); // sets up the i2c device
 
+    steering(0); // calls steering with angle 0 (straight ahead)
+    
+    delay(2000); // delays 2 seconds to show distinction between actions when testing
+    
+    driveForward(1); // calls driveForward with speedFlag of 1 which will move the car forward at a low speed
+    
+    delay(2000); // delays 2 seconds to show distinction between actions when testing
+    
+    steering(20); // calls steering with angle 20 (right)
+    
+    delay(2000); // delays 2 seconds to show distinction between actions when testing
+    
+    stopMotor(); // calls stopMotor to stop moving
+    
+    delay(2000); // delays 2 seconds to show distinction between actions when testing
+    
+    driveReverse(1); // calls driveReverse with speedFlag of 1 which will move the car backward at a low speed
+    
+    delay(2000); // delays 2 seconds to show distinction between actions when testing
+    
+    steering(0); // calls steering with angle 0 (straight ahead)
+    
+    delay(2000); // delays 2 seconds to show distinction between actions when testing
+    
+    stopMotor(); // calls stopMotor to stop moving
 
 
 
