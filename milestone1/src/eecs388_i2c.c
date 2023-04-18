@@ -136,7 +136,7 @@ void driveForward(uint8_t speedFlag){
 
 void driveReverse(uint8_t speedFlag){
    int speed = 0; // default speed
-   printf("DRIVE FORWARD\n");
+   printf("DRIVE BACKWARD\n");
    switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
     case 1:
         speed = 267; // low speed value in negative direction
