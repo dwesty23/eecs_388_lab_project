@@ -72,6 +72,7 @@ void steering(int angle){
     uint16_t valToBreak = getServoCycle(angle); // passes in the angle to getServoCycle and stores the value in valToBreak
     uint8_t low, high; // creates two 8 bit numbers to pass into breakup
     breakup(valToBreak, &low, &high); // makes 2 8 bit numbers from 1 12bit number
+    printf("STEERING - %d\n" , angle);
 
     //talk to motor
     bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory address for servo
@@ -89,6 +90,7 @@ void stopMotor(){
    uint8_t low, high; // creates two 8 bit numbers to pass into breakup
   
     breakup(280, &low, &high); // make low and high bit numbers for the stopping speed
+    printf("STOPPING\n");
     
     //talk to motors
     bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
@@ -103,6 +105,7 @@ void stopMotor(){
 
 void driveForward(uint8_t speedFlag){
    int speed = 0; // default speed
+   printf("DRIVE FORWARD\n");
 
    switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
     case 1:
@@ -133,6 +136,7 @@ void driveForward(uint8_t speedFlag){
 
 void driveReverse(uint8_t speedFlag){
    int speed = 0; // default speed
+   printf("DRIVE FORWARD\n");
    switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
     case 1:
         speed = 267; // low speed value in negative direction
