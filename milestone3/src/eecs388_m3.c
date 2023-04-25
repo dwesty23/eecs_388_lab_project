@@ -63,33 +63,122 @@ void set_up_I2C()
 
 void breakup(int bigNum, uint8_t* low, uint8_t* high)
 {
-// your code from Milestone 1
+    *low = (uint8_t)bigNum & 0xFF; // takes bigNum and ANDs it with 11111111 so that the low 8 bits are taken
+    *high = bigNum >> 8; // takes bigNum and shifts right by 8 bits so that the high 4 bits are taken with 0000 leading them
 }
 
 void steering(int angle)
 {
-// your code from Milestone 1
+    uint16_t valToBreak = getServoCycle(angle); // passes in the angle to getServoCycle and stores the value in valToBreak
+    uint8_t low, high; // creates two 8 bit numbers to pass into breakup
+    breakup(valToBreak, &low, &high); // makes 2 8 bit numbers from 1 12bit number
+    printf("STEERING - %d\n" , angle);
+
+    //talk to motor
+    bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory address for servo
+    bufWrite[1] = 0x00;
+    bufWrite[2] = 0x00;
+    bufWrite[3] = low; // store low bits
+    bufWrite[4] = high; // store high bits
+
+    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send info to the car
+    // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
 }
 
 void stopMotor()
 {
-// your code from Milestone 1
+    uint8_t low, high; // creates two 8 bit numbers to pass into breakup
+  
+    breakup(280, &low, &high); // make low and high bit numbers for the stopping speed
+    printf("STOPPING\n");
+    
+    //talk to motors
+    bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
+    bufWrite[1] = 0x00;
+    bufWrite[2] = 0x00; 
+    bufWrite[3] = low; // store low bits
+    bufWrite[4] = high; // store high bits
+
+    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send all the info to car
+    // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
 }
 
 void driveForward(uint8_t speedFlag)
 {
-// your code from Milestone 1
+    int speed = 0; // default speed
+    printf("DRIVE FORWARD\n");
+
+    switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
+        case 1:
+            speed = 313; // low speed value in positive direction
+            break;
+        case 2:
+            speed = 315; // medium speed value in positive direction
+            break;
+        case 3:
+            speed = 317; // high speed value in positive direction
+            break;
+    }
+
+    uint8_t low, high;
+    breakup(speed, &low, &high); // break into 2 8 bits
+    
+    //talk to motors
+    bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
+    bufWrite[1] = 0x00;
+    bufWrite[2] = 0x00; 
+    bufWrite[3] = low; // store low bits
+    bufWrite[4] = high; // store high bits
+    
+    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send all the info to car
+    // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
 }
 
 void driveReverse(uint8_t speedFlag)
 {
-// your code from Milestone 1
+    int speed = 0; // default speed
+    printf("DRIVE BACKWARD\n");
+    switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
+        case 1:
+            speed = 267; // low speed value in negative direction
+            break;
+        case 2:
+            speed = 265; // medium speed value in negative direction
+            break;
+        case 3:
+            speed = 263; // high speed value in negative direction
+            break;
+    }
+    uint8_t low, high;
+    breakup(speed, &low, &high);
+    
+    //talk to motors
+    bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
+    bufWrite[1] = 0x00;
+    bufWrite[2] = 0x00;
+    bufWrite[3] = low; // store low bits
+    bufWrite[4] = high; // store high bits
+    
+    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send all the info to car
+    // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
 }
 
 void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration)
 {
     char * str = malloc(20 * sizeof(char)); // you can use this to store the received string
-                                            // it is the same as char str[20]                
+                                            // it is the same as char str[20]
+
+    ser_readline(devid,20,&str);
+
+    printf(str);
+    
+    sscanf(str+7, "%d", str+9, "%d", str+12, "%d", &angle, &speed, &duration);
+
+    printf(angle);
+    printf(speed);
+    printf(duration);
+
+
 
    // Extract the values of angle, speed and duration inside this function
    // And place them into the correct variables that are passed in
@@ -129,6 +218,21 @@ int main()
               call steering(), driveForward/Reverse() and delay with the extracted values
           }
         */
+       if (ser_isready(0)){
+            raspberrypi_int_handler(0,&angle,&speed,&duration);
+            
+            steering(angle);
+
+            if (speed < 0) {
+                driveReverse(abs(speed));
+            } else if (speed == 0) {
+                stopMotor();
+            } else {
+                driveForward(speed);
+            }
+
+            delay(duration * 1000);
+       }
     }
     return 0;
 }
