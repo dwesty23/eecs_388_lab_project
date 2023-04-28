@@ -168,8 +168,11 @@ void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration
     char * str = malloc(20 * sizeof(char)); // you can use this to store the received string
                                             // it is the same as char str[20]
 
+
     ser_readline(devid,20,&str);
 
+
+    printf("THIS IS THE STRING\n");
     printf(str);
     
     sscanf(str+7, "%d", str+9, "%d", str+12, "%d", &angle, &speed, &duration);
@@ -200,6 +203,7 @@ int main()
 
     // initialize UART channels
     ser_setup(0); // uart0 (receive from raspberry pi)
+    ser_setup(1);
     
     printf("Setup completed.\n");
     printf("Begin the main loop.\n");
@@ -218,9 +222,10 @@ int main()
               call steering(), driveForward/Reverse() and delay with the extracted values
           }
         */
-       if (ser_isready(0)){
-            raspberrypi_int_handler(0,&angle,&speed,&duration);
-            
+       if(ser_isready(1)){
+            printf("READY\n");
+            raspberrypi_int_handler(1, angle, speed, duration);
+
             steering(angle);
 
             if (speed < 0) {
@@ -230,9 +235,11 @@ int main()
             } else {
                 driveForward(speed);
             }
-
+            
             delay(duration * 1000);
-       }
+
+
+
+        }
     }
-    return 0;
 }
