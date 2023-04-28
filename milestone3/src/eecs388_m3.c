@@ -274,9 +274,11 @@ int main()
             } else {
                 driveForward(speed);
             }
-
+            
             delay(duration * 1000);
-       }
+
+
+
+        }
     }
-    return 0;
 }

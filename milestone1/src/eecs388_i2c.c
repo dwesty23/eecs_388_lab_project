@@ -7,6 +7,8 @@
 struct metal_i2c *i2c;
 uint8_t bufWrite[9];
 uint8_t bufRead[1];
+//hi
+
 
 
 //The entire setup sequence
