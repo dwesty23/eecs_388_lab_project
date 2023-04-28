@@ -166,22 +166,26 @@ void driveReverse(uint8_t speedFlag)
 void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration)
 {
     char * str = malloc(20 * sizeof(char)); // you can use this to store the received string
-                                            // it is the same as char str[20]
-    printf("before readline\n");
-    ser_readline(devid,20, &str);
+                
+    //char str[10];                                        // it is the same as char str[20]
+    /*printf("before readline\n");
+    int read = ser_readline(devid,20, &str);
+    printf("stopped reading at read: %d\n", read);
+    //str = ser_read(1);
     printf("line was read\n");
 
     printf(&str);
     printf("\n");
     
     printf("before sscanf\n");
-    sscanf(str , "angle: %d, speed: %d, duration: %d",&angle,&speed,&duration);
+    sscanf(str, "a:%d s:%d d:%d", &angle,&speed,&duration);
     //sscanf(str+7,"%d",&angle);
     printf("after sscanf\n");
 
     printf(angle);
     printf(speed);
     printf(duration);
+    
 
 
 
@@ -189,6 +193,7 @@ void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration
    // And place them into the correct variables that are passed in
 
     free(str);
+    */
 }
 
 
@@ -204,14 +209,14 @@ int main()
     delay(2000);
 
     // initialize UART channels
-    ser_setup(0); // uart0 (receive from raspberry pi)
-    ser_setup(1);
+    //ser_setup(0); // uart0 (receive from raspberry pi)
+    //ser_setup(1);
     
     printf("Setup completed.\n");
     printf("Begin the main loop.\n");
     
 
-    int angle, speed, duration;
+    //int angle, speed, duration;
     // Drive loop
     while (1) {
         // The following pseudo-code is a rough guide on how to write your code
@@ -224,8 +229,41 @@ int main()
               call steering(), driveForward/Reverse() and delay with the extracted values
           }
         */
+       ser_setup(0); // uart0 (receive from raspberry pi)
+        ser_setup(1);
        if (ser_isready(1)){
-            raspberrypi_int_handler(1,&angle,&speed,&duration);
+            printf("READY\n");
+            //raspberrypi_int_handler(1,&angle,&speed,&duration);
+
+            //char * str = malloc(20 * sizeof(char)); // you can use this to store the received string
+        
+            char str[20];                                        // it is the same as char str[20]
+            printf("before readline\n");
+            int read = ser_readline(1,20, str);
+            printf("stopped reading at read: %d\n", read);
+            //str = ser_read(1);
+            printf("line was read\n");
+
+            printf("%s\n",str);
+            printf("\n");
+            
+            printf("before sscanf\n");
+            int angle, speed, duration;
+            sscanf(str, "a:%d s:%d d:%d", &angle,&speed,&duration);
+            //sscanf(str+7,"%d",&angle);
+            printf("after sscanf\n");
+
+            printf("angle: %d\n",angle);
+            printf("speed: %d\n", speed);
+            printf("duration: %d\n", duration);
+            
+
+
+
+        // Extract the values of angle, speed and duration inside this function
+        // And place them into the correct variables that are passed in
+
+            free(str);
             
             steering(angle);
 
