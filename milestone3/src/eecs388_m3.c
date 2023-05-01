@@ -168,7 +168,7 @@ void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration
     char * str = malloc(20 * sizeof(char)); // you can use this to store the received string
                 
     //char str[10];                                        // it is the same as char str[20]
-    /*printf("before readline\n");
+    printf("before readline\n");
     int read = ser_readline(devid,20, &str);
     printf("stopped reading at read: %d\n", read);
     //str = ser_read(1);
@@ -193,7 +193,7 @@ void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration
    // And place them into the correct variables that are passed in
 
     free(str);
-    */
+    
 }
 
 
@@ -216,7 +216,7 @@ int main()
     printf("Begin the main loop.\n");
     
 
-    //int angle, speed, duration;
+    int angle, speed, duration;
     // Drive loop
     while (1) {
         // The following pseudo-code is a rough guide on how to write your code
@@ -230,13 +230,14 @@ int main()
           }
         */
        ser_setup(0); // uart0 (receive from raspberry pi)
-        ser_setup(1);
+       ser_setup(1);
        if (ser_isready(1)){
             printf("READY\n");
-            //raspberrypi_int_handler(1,&angle,&speed,&duration);
+            raspberrypi_int_handler(1,&angle,&speed,&duration);
 
             //char * str = malloc(20 * sizeof(char)); // you can use this to store the received string
         
+            /*
             char str[20];                                        // it is the same as char str[20]
             printf("before readline\n");
             int read = ser_readline(1,20, str);
@@ -264,6 +265,7 @@ int main()
         // And place them into the correct variables that are passed in
 
             free(str);
+            */
             
             steering(angle);
 
