@@ -178,7 +178,7 @@ void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration
     printf("\n");
     
     printf("before sscanf\n");
-    sscanf(str, "a:%d s:%d d:%d", &angle,&speed,&duration);
+    sscanf(str, "a:%d s:%d d:%d", angle,speed,duration);
     //sscanf(str+7,"%d",&angle);
     printf("after sscanf\n");
 
