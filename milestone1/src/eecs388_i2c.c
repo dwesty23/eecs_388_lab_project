@@ -77,7 +77,7 @@ void steering(int angle){
     printf("STEERING - %d\n" , angle);
 
     //talk to motor
-    bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory address for servo
+    bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for servo
     bufWrite[1] = 0x00;
     bufWrite[2] = 0x00;
     bufWrite[3] = low; // store low bits
@@ -95,7 +95,7 @@ void stopMotor(){
     printf("STOPPING\n");
     
     //talk to motors
-    bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
+    bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory address for motor direction control
     bufWrite[1] = 0x00;
     bufWrite[2] = 0x00; 
     bufWrite[3] = low; // store low bits
@@ -107,7 +107,7 @@ void stopMotor(){
 
 void driveForward(uint8_t speedFlag){
    int speed = 0; // default speed
-   printf("DRIVE FORWARD\n");
+   printf("DRIVE FORWARD - %d\n", speedFlag);
 
    switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
     case 1:
@@ -125,7 +125,7 @@ void driveForward(uint8_t speedFlag){
    breakup(speed, &low, &high); // break into 2 8 bits
    
    //talk to motors
-   bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
+   bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory address for motor direction control
    bufWrite[1] = 0x00;
    bufWrite[2] = 0x00; 
    bufWrite[3] = low; // store low bits
@@ -138,7 +138,7 @@ void driveForward(uint8_t speedFlag){
 
 void driveReverse(uint8_t speedFlag){
    int speed = 0; // default speed
-   printf("DRIVE BACKWARD\n");
+   printf("DRIVE BACKWARD - %d\n", speedFlag);
    switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
     case 1:
         speed = 267; // low speed value in negative direction
@@ -154,7 +154,7 @@ void driveReverse(uint8_t speedFlag){
    breakup(speed, &low, &high);
    
    //talk to motors
-   bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
+   bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory address for motor direction control
    bufWrite[1] = 0x00;
    bufWrite[2] = 0x00;
    bufWrite[3] = low; // store low bits
@@ -170,27 +170,27 @@ int main()
 
     steering(0); // calls steering with angle 0 (straight ahead)
     
-    delay(2000); // delays 2 seconds to show distinction between actions when testing
+    delay(4000); // delays 2 seconds to show distinction between actions when testing
     
     driveForward(1); // calls driveForward with speedFlag of 1 which will move the car forward at a low speed
     
-    delay(2000); // delays 2 seconds to show distinction between actions when testing
+    delay(4000); // delays 2 seconds to show distinction between actions when testing
     
     steering(20); // calls steering with angle 20 (right)
     
-    delay(2000); // delays 2 seconds to show distinction between actions when testing
+    delay(4000); // delays 2 seconds to show distinction between actions when testing
     
     stopMotor(); // calls stopMotor to stop moving
     
-    delay(2000); // delays 2 seconds to show distinction between actions when testing
+    delay(4000); // delays 2 seconds to show distinction between actions when testing
     
     driveReverse(1); // calls driveReverse with speedFlag of 1 which will move the car backward at a low speed
     
-    delay(2000); // delays 2 seconds to show distinction between actions when testing
+    delay(4000); // delays 2 seconds to show distinction between actions when testing
     
     steering(0); // calls steering with angle 0 (straight ahead)
     
-    delay(2000); // delays 2 seconds to show distinction between actions when testing
+    delay(4000); // delays 2 seconds to show distinction between actions when testing
     
     stopMotor(); // calls stopMotor to stop moving
 

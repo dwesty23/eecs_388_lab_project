@@ -81,13 +81,14 @@ void steering(int angle)
     bufWrite[3] = low; // store low bits
     bufWrite[4] = high; // store high bits
 
+    printf("Before transfer\n");
     metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send info to the car
+    printf("After transfer\n");
     // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
 }
 
-void stopMotor()
-{
-    uint8_t low, high; // creates two 8 bit numbers to pass into breakup
+void stopMotor(){
+   uint8_t low, high; // creates two 8 bit numbers to pass into breakup
   
     breakup(280, &low, &high); // make low and high bit numbers for the stopping speed
     printf("STOPPING\n");
@@ -103,79 +104,78 @@ void stopMotor()
     // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
 }
 
-void driveForward(uint8_t speedFlag)
-{
-    int speed = 0; // default speed
-    printf("DRIVE FORWARD WITH SPEED: %d\n", speedFlag);
+void driveForward(uint8_t speedFlag){
+   int speed = 0; // default speed
+   printf("DRIVE FORWARD\n");
 
-    switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
-        case 1:
-            speed = 313; // low speed value in positive direction
-            break;
-        case 2:
-            speed = 315; // medium speed value in positive direction
-            break;
-        case 3:
-            speed = 317; // high speed value in positive direction
-            break;
-    }
+   switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
+    case 1:
+        speed = 313; // low speed value in positive direction
+        break;
+    case 2:
+        speed = 315; // medium speed value in positive direction
+        break;
+    case 3:
+        speed = 317; // high speed value in positive direction
+        break;
+   }
 
-    uint8_t low, high;
-    breakup(speed, &low, &high); // break into 2 8 bits
-    
-    //talk to motors
-    bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
-    bufWrite[1] = 0x00;
-    bufWrite[2] = 0x00; 
-    bufWrite[3] = low; // store low bits
-    bufWrite[4] = high; // store high bits
-    
-    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send all the info to car
-    // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
+   uint8_t low, high;
+   breakup(speed, &low, &high); // break into 2 8 bits
+   
+   //talk to motors
+   bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
+   bufWrite[1] = 0x00;
+   bufWrite[2] = 0x00; 
+   bufWrite[3] = low; // store low bits
+   bufWrite[4] = high; // store high bits
+   
+   metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send all the info to car
+   // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
+
 }
 
-void driveReverse(uint8_t speedFlag)
-{
-    int speed = 0; // default speed
-    printf("DRIVE BACKWARD WITH SPEED %d\n", speedFlag);
-    switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
-        case 1:
-            speed = 267; // low speed value in negative direction
-            break;
-        case 2:
-            speed = 265; // medium speed value in negative direction
-            break;
-        case 3:
-            speed = 263; // high speed value in negative direction
-            break;
-    }
-    uint8_t low, high;
-    breakup(speed, &low, &high);
-    
-    //talk to motors
-    bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
-    bufWrite[1] = 0x00;
-    bufWrite[2] = 0x00;
-    bufWrite[3] = low; // store low bits
-    bufWrite[4] = high; // store high bits
-    
-    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send all the info to car
-    // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
+void driveReverse(uint8_t speedFlag){
+   int speed = 0; // default speed
+   printf("DRIVE BACKWARD\n");
+   switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
+    case 1:
+        speed = 267; // low speed value in negative direction
+        break;
+    case 2:
+        speed = 265; // medium speed value in negative direction
+        break;
+    case 3:
+        speed = 263; // high speed value in negative direction
+        break;
+   }
+   uint8_t low, high;
+   breakup(speed, &low, &high);
+   
+   //talk to motors
+   bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for motor direction control
+   bufWrite[1] = 0x00;
+   bufWrite[2] = 0x00;
+   bufWrite[3] = low; // store low bits
+   bufWrite[4] = high; // store high bits
+   
+   metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send all the info to car
+   // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
 }
 
 void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration)
 {
-    //char * str = malloc(20 * sizeof(char)); // you can use this to store the received string
+    char * str = malloc(20 * sizeof(char)); // you can use this to store the received string
                 
-    char str[20];                                        // it is the same as char str[20]
+    //char str[20];                                        // it is the same as char str[20]
     printf("before readline\n");
     int read = ser_readline(devid,20, str);
     printf("stopped reading at read: %d\n", read);
     //str = ser_read(1);
     printf("line was read\n");
 
-    printf(&str);
-    printf("\n");
+    //printf(&str);
+    //printf("\n");
 
 
     printf("before sscanf\n");
@@ -193,7 +193,7 @@ void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration
 
    // Extract the values of angle, speed and duration inside this function
    // And place them into the correct variables that are passed in
-    //free(str);
+    free(str);
     return;
     
 }
@@ -241,8 +241,8 @@ int main()
             
             printf("Angle: %d, Speed: %d, Duration: %d\n", angle, speed, duration);
 
-
-            steering(angle);
+            int test = 0;
+            steering(test);
 
             if (speed < 0) {
                 driveReverse(abs(speed));
@@ -253,6 +253,7 @@ int main()
             }
             
             delay(duration * 1000);
+            
 
             
 

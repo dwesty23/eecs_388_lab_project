@@ -72,7 +72,7 @@
 #define PCA9685_I2C_ADDRESS 0x40
 #define PCA9685_MODE1 0x00      /**< Mode Register 1 */
 #define PCA9685_LED0_ON_L 0x06  /**< LED0 on tick, low byte*/
-#define PCA9685_LED1_ON_L 0x0A 
+#define PCA9685_LED1_ON_L 0xA 
 #define PCA9685_PRESCALE 0xFE     /**< Prescaler for PWM output frequency */
 
 // MODE1 bits
