@@ -61,111 +61,107 @@ void set_up_I2C()
     printf("Set register is %d\n",bufRead[0]);
 } 
 
-void breakup(int bigNum, uint8_t* low, uint8_t* high){
-    *low = (uint8_t)bigNum & 0xFF; // takes bigNum and ANDs it with 11111111 so that the low 8 bits are taken
-    *high = bigNum >> 8; // takes bigNum and shifts right by 8 bits so that the high 4 bits are taken with 0000 leading them
-    printf("inside breakup call low: %d\n", low);
-    printf("inside breakup call high: %d\n", high);
+void breakup(int bigNum, uint8_t* low, uint8_t* high)
+{
+// your code from Milestone 1
+    *low = bigNum & 0xff;
+    *high = (bigNum>>8);
 }
 
-void steering(int angle){
-    printf("STEERING - %d\n" , angle);
-    uint16_t valToBreak = getServoCycle(angle); // passes in the angle to getServoCycle and stores the value in valToBreak
-    printf("ValToBreak = %d", valToBreak);
-    uint8_t low, high; // creates two 8 bit numbers to pass into breakup
-    breakup(valToBreak, &low, &high); // makes 2 8 bit numbers from 1 12bit number
-    printf("inside function call low: %d\n", low);
-    printf("inside function call high: %d\n", high);
-
-    //talk to motor
-    bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for servo
+void steering(int angle)
+{
+// your code from Milestone 1
+    int cycle = getServoCycle(angle);
+    bufWrite[0] = PCA9685_LED1_ON_L; //Either LED 1 or 0
     bufWrite[1] = 0x00;
     bufWrite[2] = 0x00;
-    bufWrite[3] = low; // store low bits
-    bufWrite[4] = high; // store high bits
-
-    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send info to the car
-    // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
-    
+    breakup(cycle, &bufWrite[3], &bufWrite[4]);
+    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
 }
 
-void stopMotor(){
-   uint8_t low, high; // creates two 8 bit numbers to pass into breakup
-  
-    breakup(280, &low, &high); // make low and high bit numbers for the stopping speed
-    
-    printf("STOPPING\n");
-    printf("inside function call low: %d\n", low);
-    printf("inside function call high: %d\n", high);
-    
-    //talk to motors
-    bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory address for motor direction control
+void stopMotor()
+{
+// your code from Milestone 1
+    uint8_t var1, var2;
+    breakup(280, &var1, &var2);
+    bufWrite[0] = PCA9685_LED0_ON_L;
     bufWrite[1] = 0x00;
-    bufWrite[2] = 0x00; 
-    bufWrite[3] = low; // store low bits
-    bufWrite[4] = high; // store high bits
-
-    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send all the info to car
-    // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
+    bufWrite[2] = 0x00;
+    bufWrite[3] = var1;
+    bufWrite[4] = var2;
+    metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
 }
 
-void driveForward(uint8_t speedFlag){
-   int speed = 0; // default speed
-   printf("DRIVE FORWARD - %d\n", speedFlag);
-
-   switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
-    case 1:
-        speed = 313; // low speed value in positive direction
-        break;
-    case 2:
-        speed = 315; // medium speed value in positive direction
-        break;
-    case 3:
-        speed = 317; // high speed value in positive direction
-        break;
-   }
-
-   uint8_t low, high;
-   breakup(speed, &low, &high); // break into 2 8 bits
-   
-   //talk to motors
-   bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory address for motor direction control
-   bufWrite[1] = 0x00;
-   bufWrite[2] = 0x00; 
-   bufWrite[3] = low; // store low bits
-   bufWrite[4] = high; // store high bits
-   
-   metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send all the info to car
-   // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
-
+void driveForward(uint8_t speedFlag)
+{
+// your code from Milestone 1
+    uint8_t variable1;
+    uint8_t variable2;
+    printf("Starting to drive");
+    if (speedFlag == 1) {
+        breakup(313, &variable1, &variable2);
+        bufWrite[0] = PCA9685_LED0_ON_L;
+        bufWrite[1] = 0x00;
+        bufWrite[2] = 0x00;
+        bufWrite[3] = variable1;
+        bufWrite[4] = variable2;
+        metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+        // int drive_low = metal_i2c_write(i2c, PCA9685_LED0_OFF_L, 1, variable1, METAL_I2C_STOP_DISABLE);
+        // int drive_high = metal_i2c_write(i2c, PCA9685_LED0_OFF_H, 1, variable2, METAL_I2C_STOP_ENABLE);
+    } else if (speedFlag == 2) {
+        breakup(315, &variable1, &variable2);
+        bufWrite[0] = PCA9685_LED0_ON_L;
+        bufWrite[1] = 0x00;
+        bufWrite[2] = 0x00;
+        bufWrite[3] = variable1;
+        bufWrite[4] = variable2;
+        metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+        // int drive_low = metal_i2c_write(i2c, PCA9685_LED0_OFF_L, 1, variable1, METAL_I2C_STOP_DISABLE);
+        // int drive_high = metal_i2c_write(i2c, PCA9685_LED0_OFF_H, 1, variable2, METAL_I2C_STOP_ENABLE);
+    } else if (speedFlag == 3) {
+        breakup(317, &variable1, &variable2);
+        bufWrite[0] = PCA9685_LED0_ON_L;
+        bufWrite[1] = 0x00;
+        bufWrite[2] = 0x00;
+        bufWrite[3] = variable1;
+        bufWrite[4] = variable2;
+        metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+        // int drive_low = metal_i2c_write(i2c, PCA9685_LED0_OFF_L, 1, variable1, METAL_I2C_STOP_DISABLE);
+        // int drive_high = metal_i2c_write(i2c, PCA9685_LED0_OFF_H, 1, variable2, METAL_I2C_STOP_ENABLE);
+    }
+    printf("Finished Driving");
 }
 
-void driveReverse(uint8_t speedFlag){
-   int speed = 0; // default speed
-   printf("DRIVE BACKWARD - %d\n", speedFlag);
-   switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
-    case 1:
-        speed = 267; // low speed value in negative direction
-        break;
-    case 2:
-        speed = 265; // medium speed value in negative direction
-        break;
-    case 3:
-        speed = 263; // high speed value in negative direction
-        break;
-   }
-   uint8_t low, high;
-   breakup(speed, &low, &high);
-   
-   //talk to motors
-   bufWrite[0] = PCA9685_LED0_ON_L; //this is a memory address for motor direction control
-   bufWrite[1] = 0x00;
-   bufWrite[2] = 0x00;
-   bufWrite[3] = low; // store low bits
-   bufWrite[4] = high; // store high bits
-   
-   metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send all the info to car
-   // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
+void driveReverse(uint8_t speedFlag)
+{
+// your code from Milestone 1
+    uint8_t variable1;
+    uint8_t variable2;
+    if (speedFlag == 1) {
+        breakup(267, &variable1, &variable2);
+        bufWrite[0] = PCA9685_LED0_ON_L;
+        bufWrite[1] = 0x00;
+        bufWrite[2] = 0x00;
+        bufWrite[3] = variable1;
+        bufWrite[4] = variable2;
+        metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+    } else if (speedFlag == 2) {
+        breakup(265, &variable1, &variable2);
+        bufWrite[0] = PCA9685_LED0_ON_L;
+        bufWrite[1] = 0x00;
+        bufWrite[2] = 0x00;
+        bufWrite[3] = variable1;
+        bufWrite[4] = variable2;
+        metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+    } else if (speedFlag == 3) {
+        breakup(263, &variable1, &variable2);
+        bufWrite[0] = PCA9685_LED0_ON_L;
+        bufWrite[1] = 0x00;
+        bufWrite[2] = 0x00;
+        bufWrite[3] = variable1;
+        bufWrite[4] = variable2;
+        metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1);
+    }
 }
 
 void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration)
@@ -200,7 +196,6 @@ void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration
    // And place them into the correct variables that are passed in
     free(str);
     return;
-    
 }
 
 

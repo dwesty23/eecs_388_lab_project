@@ -66,8 +66,8 @@ void set_up_I2C(){
 
 
 void breakup(int bigNum, uint8_t* low, uint8_t* high){
-    *low = (uint8_t)bigNum & 0xFF; // takes bigNum and ANDs it with 11111111 so that the low 8 bits are taken
-    *high = bigNum >> 8; // takes bigNum and shifts right by 8 bits so that the high 4 bits are taken with 0000 leading them
+    *low = bigNum & 0xFF; // takes bigNum and ANDs it with 11111111 so that the low 8 bits are taken
+    *high = (bigNum >> 8) & 0xFF; // takes bigNum and shifts right by 8 bits so that the high 4 bits are taken with 0000 leading them
 }
 
 void steering(int angle){
@@ -75,6 +75,8 @@ void steering(int angle){
     uint8_t low, high; // creates two 8 bit numbers to pass into breakup
     breakup(valToBreak, &low, &high); // makes 2 8 bit numbers from 1 12bit number
     printf("STEERING - %d\n" , angle);
+    printf("low: %d\n", low);
+    printf("high: %d\n", high);
 
     //talk to motor
     bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for servo

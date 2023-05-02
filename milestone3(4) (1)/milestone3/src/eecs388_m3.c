@@ -62,28 +62,30 @@ void set_up_I2C()
 } 
 
 void breakup(int bigNum, uint8_t* low, uint8_t* high){
-    *low = (uint8_t)bigNum & 0xFF; // takes bigNum and ANDs it with 11111111 so that the low 8 bits are taken
-    *high = bigNum >> 8; // takes bigNum and shifts right by 8 bits so that the high 4 bits are taken with 0000 leading them
-    printf("inside breakup call low: %d\n", low);
-    printf("inside breakup call high: %d\n", high);
+    printf("inside breakup call before low: %d\n", *low);
+    printf("inside breakup call before high: %d\n", *high);
+    *low = bigNum & 0xFF; // takes bigNum and ANDs it with 11111111 so that the low 8 bits are taken
+    *high = (bigNum >> 8) & 0xFF; // takes bigNum and shifts right by 8 bits so that the high 4 bits are taken with 0000 leading them
+    printf("inside breakup call low: %d\n", *low);
+    printf("inside breakup call high: %d\n", *high);
 }
 
 void steering(int angle){
     printf("STEERING - %d\n" , angle);
     uint16_t valToBreak = getServoCycle(angle); // passes in the angle to getServoCycle and stores the value in valToBreak
-    printf("ValToBreak = %d", valToBreak);
+    printf("ValToBreak = %d\n", valToBreak);
     uint8_t low, high; // creates two 8 bit numbers to pass into breakup
-    breakup(valToBreak, &low, &high); // makes 2 8 bit numbers from 1 12bit number
-    printf("inside function call low: %d\n", low);
-    printf("inside function call high: %d\n", high);
+    breakup(valToBreak, &bufWrite[3], &bufWrite[4]); // makes 2 8 bit numbers from 1 12bit number
+    //printf("inside steering call low: %d\n", low);
+    //printf("inside steering call high: %d\n", high);
 
     //talk to motor
     bufWrite[0] = PCA9685_LED1_ON_L; //this is a memory address for servo
     bufWrite[1] = 0x00;
     bufWrite[2] = 0x00;
-    bufWrite[3] = low; // store low bits
-    bufWrite[4] = high; // store high bits
-
+    //bufWrite[3] = low; // store low bits
+    //bufWrite[4] = high; // store high bits
+    
     metal_i2c_transfer(i2c, PCA9685_I2C_ADDRESS, bufWrite, 5, bufRead, 1); // send info to the car
     // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
     
@@ -248,7 +250,7 @@ int main()
             printf("Angle: %d, Speed: %d, Duration: %d\n", angle, speed, duration);
 
 
-            steering(angle);
+            //steering(angle);
 
             if (speed < 0) {
                 driveReverse(abs(speed));
