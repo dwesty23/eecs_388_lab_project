@@ -106,7 +106,7 @@ void stopMotor()
 void driveForward(uint8_t speedFlag)
 {
     int speed = 0; // default speed
-    printf("DRIVE FORWARD\n");
+    printf("DRIVE FORWARD WITH SPEED: %d\n", speedFlag);
 
     switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
         case 1:
@@ -137,7 +137,7 @@ void driveForward(uint8_t speedFlag)
 void driveReverse(uint8_t speedFlag)
 {
     int speed = 0; // default speed
-    printf("DRIVE BACKWARD\n");
+    printf("DRIVE BACKWARD WITH SPEED %d\n", speedFlag);
     switch(speedFlag){ // switch case for different speeds depending on passed in speedFlag value
         case 1:
             speed = 267; // low speed value in negative direction
@@ -165,34 +165,36 @@ void driveReverse(uint8_t speedFlag)
 
 void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration)
 {
-    char * str = malloc(20 * sizeof(char)); // you can use this to store the received string
+    //char * str = malloc(20 * sizeof(char)); // you can use this to store the received string
                 
-    //char str[10];                                        // it is the same as char str[20]
+    char str[20];                                        // it is the same as char str[20]
     printf("before readline\n");
-    int read = ser_readline(devid,20, &str);
+    int read = ser_readline(devid,20, str);
     printf("stopped reading at read: %d\n", read);
     //str = ser_read(1);
     printf("line was read\n");
 
     printf(&str);
     printf("\n");
-    
+
+
     printf("before sscanf\n");
-    sscanf(str, "a:%d s:%d d:%d", angle,speed,duration);
-    //sscanf(str+7,"%d",&angle);
+    sscanf(str, "%d %d %d\n", angle,speed,duration);
     printf("after sscanf\n");
 
-    printf(angle);
-    printf(speed);
-    printf(duration);
+/*
+    printf(&angle);
+    printf(&speed);
+    printf(&duration);
+*/
     
 
 
 
    // Extract the values of angle, speed and duration inside this function
    // And place them into the correct variables that are passed in
-
-    free(str);
+    //free(str);
+    return;
     
 }
 
@@ -217,6 +219,8 @@ int main()
     
 
     int angle, speed, duration;
+    ser_setup(0); // uart0 (receive from raspberry pi)
+    ser_setup(1);
     // Drive loop
     while (1) {
         // The following pseudo-code is a rough guide on how to write your code
@@ -229,44 +233,15 @@ int main()
               call steering(), driveForward/Reverse() and delay with the extracted values
           }
         */
-       ser_setup(0); // uart0 (receive from raspberry pi)
-       ser_setup(1);
+
        if (ser_isready(1)){
             printf("READY\n");
             raspberrypi_int_handler(1,&angle,&speed,&duration);
-
-            //char * str = malloc(20 * sizeof(char)); // you can use this to store the received string
-        
-            /*
-            char str[20];                                        // it is the same as char str[20]
-            printf("before readline\n");
-            int read = ser_readline(1,20, str);
-            printf("stopped reading at read: %d\n", read);
-            //str = ser_read(1);
-            printf("line was read\n");
-
-            printf("%s\n",str);
-            printf("\n");
+            printf("EXITED RASP INT\n");
             
-            printf("before sscanf\n");
-            int angle, speed, duration;
-            sscanf(str, "a:%d s:%d d:%d", &angle,&speed,&duration);
-            //sscanf(str+7,"%d",&angle);
-            printf("after sscanf\n");
-
-            printf("angle: %d\n",angle);
-            printf("speed: %d\n", speed);
-            printf("duration: %d\n", duration);
-            
+            printf("Angle: %d, Speed: %d, Duration: %d\n", angle, speed, duration);
 
 
-
-        // Extract the values of angle, speed and duration inside this function
-        // And place them into the correct variables that are passed in
-
-            free(str);
-            */
-            
             steering(angle);
 
             if (speed < 0) {
@@ -278,6 +253,8 @@ int main()
             }
             
             delay(duration * 1000);
+
+            
 
 
 
