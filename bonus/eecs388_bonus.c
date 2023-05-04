@@ -168,7 +168,7 @@ void driveReverse(uint8_t speedFlag){
    // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
 }
 
-void raspberrypi_int_handler(int devid, int * index, int * angle, int * speed, int * duration)
+void raspberrypi_int_handler(int devid, int * index1, int * angle1, int * speed1, int * duration1, int * index2, int * angle2, int * speed2, int * duration2)
 {
     char * str = malloc(30 * sizeof(char)); // you can use this to store the received string
                 
@@ -184,7 +184,7 @@ void raspberrypi_int_handler(int devid, int * index, int * angle, int * speed, i
 
 
     printf("before sscanf\n");
-    sscanf(str, "%d %d %d %d\n", index, angle, speed, duration);
+    sscanf(str, "%d %d %d %d %d %d %d %d\n", index1, angle1, speed1, duration1, index2, angle2, speed2, duration2);
     printf("after sscanf\n");
 
 /*
@@ -262,12 +262,10 @@ int main()
         */
        ser_setup(0); // uart0 (receive from raspberry pi)
        ser_setup(1);
-       ser_setup(2);
        if (ser_isready(1) && ser_isready(2)){
             printf("READY\n");
             int index1, angle1, speed1, duration1, index2, angle2, speed2, duration2; // defines variables for each UART read
-            raspberrypi_int_handler(1,&index1,&angle1,&speed1,&duration1); // reads from devid 1
-            raspberrypi_int_handler(2,&index2,&angle2,&speed2,&duration2); // reads from devid 2
+            raspberrypi_int_handler(1,&index1,&angle1,&speed1,&duration1, &index2,&angle2,&speed2,&duration2); // reads from devid 1
             printf("EXITED RASP INT\n");
             printf("Angle1: %d, Speed1: %d, Duration1: %d\n", angle1, speed1, duration1);
             printf("Angle2: %d, Speed2: %d, Duration2: %d\n", angle2, speed2, duration2);
