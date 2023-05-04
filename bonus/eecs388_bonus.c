@@ -168,13 +168,13 @@ void driveReverse(uint8_t speedFlag){
    // calls transfer to transfer the bufWrite and bufRead arrays to the i2c to control the car
 }
 
-void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration)
+void raspberrypi_int_handler(int devid, int * index, int * angle, int * speed, int * duration)
 {
-    char * str = malloc(20 * sizeof(char)); // you can use this to store the received string
+    char * str = malloc(30 * sizeof(char)); // you can use this to store the received string
                 
     //char str[20];                                        // it is the same as char str[20]
     printf("before readline\n");
-    int read = ser_readline(devid,20, str);
+    int read = ser_readline(devid,30, str);
     printf("stopped reading at read: %d\n", read);
     //str = ser_read(1);
     printf("line was read\n");
@@ -184,7 +184,7 @@ void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration
 
 
     printf("before sscanf\n");
-    sscanf(str, "%d %d %d\n", angle,speed,duration);
+    sscanf(str, "%d %d %d %d\n", index, angle, speed, duration);
     printf("after sscanf\n");
 
 /*
@@ -201,6 +201,29 @@ void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration
     free(str);
     return;
     
+}
+
+int validate(int i1, int a1, int s1, int d1, int i2, int a2, int s2, int d2) { // verifies that the values are the same
+    if(i1 == i2 && a1 == a2 && s1 == s2 && d1 == d2) { // runs if all the values match 
+        update_car(a1, s1, d1); // updates the car 
+        return 1; // returns 1 to keep the flag loop running
+    } 
+
+    return 0; // returns 0 if the values don't match to trigger the flag
+}
+
+void update_car(int angle, int speed, int duration) { // runs the car with the passed in values
+    steering(angle);
+
+    if (speed < 0) {
+        driveReverse(abs(speed));
+    } else if (speed == 0) {
+        stopMotor();
+    } else {
+        driveForward(speed);
+    }
+    
+    delay(duration * 1000);
 }
 
 
@@ -224,9 +247,9 @@ int main()
     
 
     
-    
+    int flag = 1;
     // Drive loop
-    while (1) {
+    while (flag != 0) {
         // The following pseudo-code is a rough guide on how to write your code
         // It is NOT actual C code
          /*  
@@ -239,34 +262,31 @@ int main()
         */
        ser_setup(0); // uart0 (receive from raspberry pi)
        ser_setup(1);
-       if (ser_isready(1)){
+       ser_setup(2);
+       if (ser_isready(1) && ser_isready(2)){
             printf("READY\n");
-            int angle, speed, duration;
-            raspberrypi_int_handler(1,&angle,&speed,&duration);
+            int index1, angle1, speed1, duration1, index2, angle2, speed2, duration2; // defines variables for each UART read
+            raspberrypi_int_handler(1,&index1,&angle1,&speed1,&duration1); // reads from devid 1
+            raspberrypi_int_handler(2,&index2,&angle2,&speed2,&duration2); // reads from devid 2
             printf("EXITED RASP INT\n");
-            
-            printf("Angle: %d, Speed: %d, Duration: %d\n", angle, speed, duration);
-
-
-            steering(angle);
-
-            if (speed < 0) {
-                driveReverse(abs(speed));
-            } else if (speed == 0) {
-                stopMotor();
-            } else {
-                driveForward(speed);
-            }
-            
-            delay(duration * 1000);
-            
-            
-
-            
-
-
-
+            printf("Angle1: %d, Speed1: %d, Duration1: %d\n", angle1, speed1, duration1);
+            printf("Angle2: %d, Speed2: %d, Duration2: %d\n", angle2, speed2, duration2);
+            flag = validate(index1, angle1, speed1, duration1, index2, angle2, speed2, duration2); // validates the values and runs if the same or returns 0 for emergency flag
         }
+    }
+    if (flag == 0) { // runs if a line doesn't match so the emergency route is called
+        update_car(0, 0, 4); // index 1
+        update_car(-40, 1, 3); // index 2
+        update_car(0, 0, 4); // index 3
+        update_car(40, -1, 4); // index 4
+        update_car(0, 0, 4); // index 5
+        /*
+        1,0,0,4
+        2,-40,1,3
+        3,0,0,4
+        4,40,-1,4
+        5,0,0,4
+        */
     }
     return 0;
 }
